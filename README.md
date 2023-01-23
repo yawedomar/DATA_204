@@ -10,7 +10,7 @@
     
 *Control Flow -- Regulated by conditional statements, loops, and function*
 
-**List(Arrays) -- Allow is tp store large amount of data in a particular format, indext based** *[Strings, Integers, Floats, Boolean]*
+**List(Arrays) -- Allow is to store large amount of data in a particular format, indext based** *[Strings, Integers, Floats, Boolean]*
 ***
     Example of a LIST:
     thislist = ["apple", "banana", "cherry"]

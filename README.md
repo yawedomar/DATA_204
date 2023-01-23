@@ -3,10 +3,10 @@
 **Course Overview**: 
 
 *String methods -- Built in methods for strings*
-    - capitalize()
-    - upper()
-    - replace()
-    - lower()
+- capitalize()
+- upper()
+- replace()
+- lower()
     
 *Control Flow -- Regulated by conditional statements, loops, and function*
 

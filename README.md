@@ -1,2 +1,2 @@
-# DATA_204
+# DATA_204 Course Notes
 

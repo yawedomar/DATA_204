@@ -30,7 +30,7 @@ def test_number(num1, num2):
 print(test_number(2, 6))    
 #Prints - True
 
-# --------------Example 2-------------------------- #
+# --------------Example 2------------------------- #
 
 
 print("You must type two integers to find if one of the numbers is a factor of the other")

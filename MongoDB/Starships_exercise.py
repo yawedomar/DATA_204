@@ -55,7 +55,7 @@ print('Created New Starship Collection')
 
 all_startship_data = get_pilot_id()
 for starship in all_startship_data:
-    db.starships.inssert_one(starship)
+    db.starships.insert_one(starship)
 
 print("Starships info have been added successfully into the collection")
 

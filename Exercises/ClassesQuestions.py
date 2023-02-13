@@ -33,7 +33,7 @@ This method is called when print() or str() function is invoked on an object. Th
 '''
 Morocco = City("Marakesh","Dirham", "Africa","Tropical", "Arabic")
 
-print(Morocco)  #Prints the string format
+print(Morocco)
 
 # -------------------------------------------------------------------------------------- #
 

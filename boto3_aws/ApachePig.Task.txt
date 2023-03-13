@@ -1,0 +1,71 @@
+TASK:
+There are 4 CSVs with data from the AdventureWorks database on s3Produce Pig Scripts to do the following:
+
+salespeople= LOAD 's3://data-eng-resources/big-data/adventureworks/salespeople.csv' USING PigStorage(',') AS (BusinessEntityID:int, TerritoryID:int, SalesQuota:int, Bonus:int, CommisionPct, float, SalesYTD:float, SalesLastYear:float);
+people = LOAD 's3://data-eng-resources/big-data/adventureworks/people.csv' USING PigStorage(',') AS (BusinessEntityID:int, PersonType:chararray,NameStyle:int,Title:chararray, FirstName: chararray, MiddleName:chararray, LastName: chararray);
+territories = LOAD 's3://data-eng-resources/big-data/adventureworks/territories.csv' USING PigStorage(',') AS (TerritoryID: int, Name: chararray, CountryRegionCode: chararray, Group: chararray, SalesYTD: int);
+
+employees = LOAD ‘s3://data-eng-resources/big-data/adventureworks/employees.csv’ USING PigStorage(',') AS (date: chararray, open: float, high: float, low: float, close: float, adjclose: float, volume: int); 
+
+1. Output the full names of the Top 5 Salespeople
+
+-- Joining the two tables [salespeople,people]
+
+joined = JOIN salespeople BY BusinessEntityID, people BY BusinessEntityID;
+
+-- TOP 5 salespeople
+
+order_data = ORDER joined BY SalesYTD DESC;
+top_5 = LIMIT order_data 5;
+
+-- Concatinating First Name and Last Name
+
+name_concat = FOREACH top_5 GENERATE CONCAT (FirstName, ' ', LastName);
+DUMP name_concat
+
+OUTPUT:
+(Linda C Mitchell,4251368.5)
+(Jae B Pak,4116871.2)
+(Michael G Blythe,3763178.2)
+(Jillian NULL Carson,3189418.2)
+(Ranjit R Varkey Chudukatil,3121616.2)
+
+
+2. Find the average salesperson's sales (year to date) per territory name. Also provide the count of salespeople per territory.
+
+-- Joining the two table [salespeople, territories]
+
+sales_terr = JOIN salespeople BY TerritoryID, territories BY TerritoryID;
+
+
+-- Group by territory name first then average salesperson's sales
+
+group_name = GROUP sales_terr BY Name;
+avg = FOREACH group_name GENERATE group, AVG(sales_terr.salespeople::SalesYTD);
+DUMP avg
+
+-- count of salespeople per territory
+big_join = JOIN sales_terr BY BusinessEntityID, people BY BusinessEntityID;   #Joining on the 3 tables to get salespeople and territory
+
+terr_group = GROUP big_join BY Name;  # Using the big_join -- Group by territory Name 
+
+salespeople_count= FOREACH terr_group GENERATE group, COUNT(big_join.people::FirstName); # Counting salespeople per territory
+
+OUTPUT:
+(Canada,2)
+(France,1)
+(Central,1)
+(Germany,1)
+(Australia,1)
+(Northeast,1)
+(Northwest,3)
+(Southeast,1)
+(Southwest,2)
+(United Kingdom,1)
+
+
+3. Output a file containing a list of all names of employees as initials and surname (e.g. "D. R. Harvey").
+
+initials_surname = FOREACH people GENERATE SUBSTRING (FirstName,0,1), ',' , SUBSTRING (MiddleName,0,1), (LastName);
+DUMP initials_surname
+

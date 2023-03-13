@@ -1,0 +1,74 @@
+TASK: Load in the contents of vgsales.csv into a Hive table on EMR. It should be partitioned by Platform
+Breakdown:
+Dowload file locally, create EMR cluster, Create a SSH connection tunner, add SSH for brower use, open Hue brower from EMR hardware ID
+
+Copy csv file from s3 bucket: $ aws s3 cp s3://data-eng-resources/big-data/vgsales.csv .
+
+
+-- Create database
+CREATE DATABASE academy;
+
+-- Create a hive table 
+
+DROP TABLE IF EXISTS academy.vgsales;
+
+CREATE TABLE academy.vgsales (
+Rank_no INT,
+Name STRING,
+Platform STRING,
+Years INT,
+Genre STRING,
+Publisher STRING,
+NA_sales INT,
+EU_sales INT, 
+JP_sales INT,
+Other_sales INT, 
+Global_sales INT)
+SET TBLPROPERTIES ("skip.header.line.count"="1");  -- Removes header 
+-- ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde';
+
+-- Load the data into hive table
+
+LOAD DATA LOCAL INPATH '/home/hadoop/vgsales.csv'
+INTO TABLE academy.vgsales;
+
+-- Query and verify the data
+SELECT * FROM academy.vgsales
+
+-- Create a partition table with partition key
+DROP TABLE IF EXISTS academy.vgsales_partition;
+
+
+CREATE TABLE academy.vgsales_partition (
+Rank_no INT,
+Name STRING,
+Years INT,
+Genre STRING,
+Publisher STRING,
+NA_sales INT,
+EU_sales INT, 
+JP_sales INT,
+Other_sales INT, 
+Global_sales INT)
+PARTITIONED BY (Platform STRING)
+--ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+
+
+-- set the dynamic partition mode
+
+SET hive.exec.dynamic.partition=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
+
+-- Insert data from the unpartitioned table into the partitioned table, dynamically creating the partitions
+
+INSERT INTO TABLE academy.vgsales_partition PARTITION (Platform)
+SELECT Rank_no,Name,Years,Genre,Publisher,NA_sales,EU_sales,JP_sales,Other_sales,Global_sales, Platform FROM academy.vgsales;
+SHOW PARTITIONS academy.vgsales_partition;
+
+
+-- Query and verify the data
+SELECT * FROM academy.vgsales;
+SELECT * FROM academy.vgsales_partition;
+
